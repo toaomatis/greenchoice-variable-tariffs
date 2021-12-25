@@ -1,0 +1,11 @@
+{
+  "codeowners": ["@toaomatis"],
+  "config_flow": false,
+  "dependencies": [],
+  "documentation": "https://github.com/toaomatis/greenchoice-variable-tariffs",
+  "domain": "greenchoice_variable_tariffs",
+  "iot_class": "cloud_polling",
+  "name": "Greenchoice Variable Tariffs Sensor",
+  "requirements": [],
+  "version": "1.0.0"
+}
