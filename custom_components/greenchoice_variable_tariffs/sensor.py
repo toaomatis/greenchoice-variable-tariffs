@@ -1,14 +1,14 @@
-from datetime import datetime, timedelta
 import logging
-from typing import Any, Callable, Dict, Optional
+from datetime import datetime, timedelta
+from typing import Callable, Optional
 
+import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
-    CONF_NAME, 
-    STATE_UNKNOWN
+    CONF_NAME, STATE_UNKNOWN, ATTR_UNIT_OF_MEASUREMENT
 )
 from homeassistant.exceptions import PlatformNotReady
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.typing import (
     ConfigType,
@@ -16,8 +16,6 @@ from homeassistant.helpers.typing import (
     HomeAssistantType,
 )
 from homeassistant.util import Throttle
-
-import voluptuous as vol
 
 from .const import (
     CONF_POSTAL_CODE,
@@ -29,11 +27,15 @@ from .const import (
     DEFAULT_USE_GAS,
     DEFAULT_USE_LOW_TARIFF,
     DEFAULT_USE_NORMAL_TARIFF,
-    DOMAIN,
+    SENSOR_TYPE_NORMAL_TARIFF,
+    SENSOR_TYPE_LOW_TARIFF,
+    SENSOR_TYPE_GAS_TARIFF,
+    SENSOR_MEASUREMENT_DATE, ATTR_MEASUREMENT_DATE,
 )
 
 _LOGGER = logging.getLogger(__name__)
-# Time between updating data from GitHub
+_RESOURCE = 'greenchoice.nl'
+# Time between updating data from Greenchoice
 SCAN_INTERVAL = timedelta(hours=12)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -44,11 +46,12 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_USE_GAS, default=DEFAULT_USE_GAS): cv.boolean,
 })
 
+
 async def async_setup_platform(
-    hass: HomeAssistantType,
-    config: ConfigType,
-    async_add_entities: Callable,
-    discovery_info: Optional[DiscoveryInfoType] = None,
+        hass: HomeAssistantType,
+        config: ConfigType,
+        async_add_entities: Callable,
+        discovery_info: Optional[DiscoveryInfoType] = None,
 ) -> None:
     """Set up the sensor platform."""
     _LOGGER.debug(f'Async setup platform')
@@ -62,15 +65,113 @@ async def async_setup_platform(
     greenchoice_api.update()
     if greenchoice_api is None:
         raise PlatformNotReady
-    
+
     sensors = []
     if use_normal_tariff is True:
-        sensors.append(GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas, SENSOR_TYPE_NORMAL_TARIFF))
+        sensors.append(
+            GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
+                                    SENSOR_TYPE_NORMAL_TARIFF))
     if use_low_tariff is True:
-        sensors.append(GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas, SENSOR_TYPE_LOW_TARIFF))
+        sensors.append(
+            GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
+                                    SENSOR_TYPE_LOW_TARIFF))
     if use_gas is True:
-        sensors.append(GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas, SENSOR_TYPE_GAS_TARIFF))
+        sensors.append(
+            GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
+                                    SENSOR_TYPE_GAS_TARIFF))
     async_add_entities(sensors, update_before_add=True)
+
+
+class GreenchoiceEnergySensor(Entity):
+    def __init__(self, greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
+                 measurement_type, ):
+        self._api = greenchoice_api
+        self._name = name
+        self._postal_code = postal_code
+        self._use_normal_tariff = use_normal_tariff
+        self._use_low_tariff = use_low_tariff
+        self._use_gas = use_gas
+        self._measurement_type = measurement_type
+        self._measurement_date = None
+        self._unit_of_measurement = None
+        self._state = None
+        self._icon = None
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return self._name
+
+    @property
+    def postal_code(self):
+        return self._postal_code
+
+    @property
+    def use_normal_tariff(self):
+        return self._use_normal_tariff
+
+    @property
+    def use_low_tariff(self):
+        return self._use_low_tariff
+
+    @property
+    def use_gas(self):
+        return self._use_gas
+
+    @property
+    def icon(self):
+        return self._icon
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def measurement_type(self):
+        return self._measurement_type
+
+    @property
+    def measurement_date(self):
+        return self._measurement_date
+
+    @property
+    def unit_of_measurement(self):
+        return self._unit_of_measurement
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return {
+            ATTR_MEASUREMENT_DATE: self._measurement_date,
+            ATTR_UNIT_OF_MEASUREMENT: self._unit_of_measurement
+        }
+
+    def update(self):
+        """Get the latest data from the Greenchoice API."""
+        self._api.update()
+
+        data = self._api.result
+        _LOGGER.debug(f'Sensor Update {self._measurement_type=}')
+
+        if data is None or self._measurement_type not in data:
+            self._state = STATE_UNKNOWN
+        else:
+            self._state = data[self._measurement_type]
+            self._measurement_date = data[SENSOR_MEASUREMENT_DATE]
+
+        if self._measurement_type == SENSOR_TYPE_NORMAL_TARIFF:
+            self._icon = 'mdi:lightning-bolt'
+            self._name = SENSOR_TYPE_NORMAL_TARIFF
+            self._unit_of_measurement = "€"
+        if self._measurement_type == SENSOR_TYPE_LOW_TARIFF:
+            self._icon = 'mdi:lightning-bolt-outline'
+            self._name = SENSOR_TYPE_LOW_TARIFF
+            self._unit_of_measurement = "€"
+        if self._measurement_type == SENSOR_TYPE_GAS_TARIFF:
+            self._icon = 'mdi:fire'
+            self._name = SENSOR_TYPE_GAS_TARIFF
+            self._unit_of_measurement = "€"
+        _LOGGER.debug(f'Sensor Updated {self=}')
 
 
 class GreenchoiceApiData:
@@ -87,3 +188,4 @@ class GreenchoiceApiData:
         self.result[SENSOR_TYPE_LOW_TARIFF] = now.minute * 1
         self.result[SENSOR_TYPE_GAS_TARIFF] = now.minute * 3
         self.result[SENSOR_MEASUREMENT_DATE] = now.isoformat()
+        _LOGGER.debug(f'API Updated {self.result=}')
