@@ -48,7 +48,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-async def async_setup_platform(
+async def async_setup_entry(
         hass: HomeAssistantType,
         config: ConfigType,
         async_add_entities: AddEntitiesCallback,
@@ -180,12 +180,31 @@ class GreenchoiceEnergySensor(Entity):
 class GreenchoiceApiData:
     def __init__(self, postal_code: str, use_normal_tariff: bool, use_low_tariff: bool, use_gas: bool) -> None:
         self._resource = _RESOURCE
+        self._postal_code = postal_code
+        self._use_normal_tariff = use_normal_tariff
+        self._use_low_tariff = use_low_tariff
+        self._use_gas = use_gas
         self.result = {}
 
     @Throttle(SCAN_INTERVAL)
     def update(self):
         _LOGGER.debug(f'API Update')
         self.result = {}
+        parameters = {}
+        parameters['clusterId'] = 146
+        parameters['postcode'] = self._postal_code
+        parameters['huisnummer'] = 1
+
+        if self._use_normal_tariff and self._use_low_tariff:
+            parameters['verbruikStroomHoog'] = 450
+            parameters['verbruikStroomLaag'] = 450
+        elif self._use_normal_tariff or self._use_low_tariff:
+            parameters['verbruikStroom'] = 450
+
+        if self._use_gas:
+            parameters['verbruikGas'] = 900
+
+
         now = datetime.now()
         self.result[SENSOR_TYPE_NORMAL_TARIFF] = now.minute * 2
         self.result[SENSOR_TYPE_LOW_TARIFF] = now.minute * 1
