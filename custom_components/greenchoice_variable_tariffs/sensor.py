@@ -178,7 +178,7 @@ class GreenchoiceEnergySensor(Entity):
 
 
 class GreenchoiceApiData:
-    def __init__(self, postal_code, use_normal_tariff, use_low_tariff, use_gas):
+    def __init__(self, postal_code: str, use_normal_tariff: bool, use_low_tariff: bool, use_gas: bool) -> None:
         self._resource = _RESOURCE
         self.result = {}
 
