@@ -10,6 +10,7 @@ from homeassistant.const import (
 )
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import (
     ConfigType,
     DiscoveryInfoType,
@@ -50,7 +51,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 async def async_setup_platform(
         hass: HomeAssistantType,
         config: ConfigType,
-        async_add_entities: Callable,
+        async_add_entities: AddEntitiesCallback,
         discovery_info: Optional[DiscoveryInfoType] = None,
 ) -> None:
     """Set up the sensor platform."""
@@ -83,6 +84,8 @@ async def async_setup_platform(
 
 
 class GreenchoiceEnergySensor(Entity):
+    """Greenchoice Energy Tariff Sensor representation."""
+
     def __init__(self, greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
                  measurement_type, ):
         self._api = greenchoice_api
@@ -98,44 +101,44 @@ class GreenchoiceEnergySensor(Entity):
         self._icon = None
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Return the name of the sensor."""
         return self._name
 
     @property
-    def postal_code(self):
+    def postal_code(self) -> str:
         return self._postal_code
 
     @property
-    def use_normal_tariff(self):
+    def use_normal_tariff(self) -> bool:
         return self._use_normal_tariff
 
     @property
-    def use_low_tariff(self):
+    def use_low_tariff(self) -> bool:
         return self._use_low_tariff
 
     @property
-    def use_gas(self):
+    def use_gas(self) -> bool:
         return self._use_gas
 
     @property
-    def icon(self):
+    def icon(self) -> str:
         return self._icon
 
     @property
-    def state(self):
+    def state(self) -> str:
         return self._state
 
     @property
-    def measurement_type(self):
+    def measurement_type(self) -> str:
         return self._measurement_type
 
     @property
-    def measurement_date(self):
+    def measurement_date(self) -> str:
         return self._measurement_date
 
     @property
-    def unit_of_measurement(self):
+    def unit_of_measurement(self) -> str:
         return self._unit_of_measurement
 
     @property
@@ -146,7 +149,7 @@ class GreenchoiceEnergySensor(Entity):
             ATTR_UNIT_OF_MEASUREMENT: self._unit_of_measurement
         }
 
-    def update(self):
+    def update(self) -> None:
         """Get the latest data from the Greenchoice API."""
         self._api.update()
 

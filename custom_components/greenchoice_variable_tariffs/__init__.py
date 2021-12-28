@@ -1,7 +1,8 @@
-from homeassistant import core
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.typing import ConfigType
 
 
-async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Greenchoice Variable Tariffs Sensor component."""
-    # @TODO: Add setup code.
+    # Return boolean to indicate that initialization was successfully.
     return True
