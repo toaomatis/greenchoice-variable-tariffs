@@ -1,6 +1,6 @@
 # Greenchoice Variable Tariffs Sensor for Home Assistant
 
-Retrieve Variable Tariffs from the Greenchoice API based on your electrical and/or natural gas connection.
+Retrieve Variable Tariffs from the Greenchoice API based on your electrical and/or natural gas contract.
 
 ### Installation
 
