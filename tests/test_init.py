@@ -1,9 +1,7 @@
 """Test component setup."""
-from homeassistant.setup import async_setup_component
-
-from custom_components.greenchoice_variable_tariffs.const import DOMAIN
+from custom_components.greenchoice_variable_tariffs import async_setup
 
 
 async def test_async_setup(hass):
     """Test the component gets setup."""
-    assert await async_setup_component(hass, DOMAIN, {}) is True
+    assert await async_setup(hass, {}) is True
