@@ -1,5 +1,8 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import (
+    datetime,
+    timedelta
+)
 from typing import Optional
 
 import aiohttp
@@ -7,10 +10,11 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
-    CONF_NAME,
-    STATE_UNKNOWN,
     ATTR_UNIT_OF_MEASUREMENT,
-    CURRENCY_EURO
+    CONF_NAME,
+    CURRENCY_EURO,
+    DEVICE_CLASS_MONETARY,
+    STATE_UNKNOWN
 )
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.entity import Entity
@@ -23,6 +27,7 @@ from homeassistant.helpers.typing import (
 from homeassistant.util import Throttle
 
 from .const import (
+    ATTR_MEASUREMENT_DATE,
     CONF_POSTAL_CODE,
     CONF_USE_GAS,
     CONF_USE_LOW_TARIFF,
@@ -32,10 +37,10 @@ from .const import (
     DEFAULT_USE_GAS,
     DEFAULT_USE_LOW_TARIFF,
     DEFAULT_USE_NORMAL_TARIFF,
-    SENSOR_TYPE_NORMAL_TARIFF,
-    SENSOR_TYPE_LOW_TARIFF,
+    SENSOR_MEASUREMENT_DATE,
     SENSOR_TYPE_GAS_TARIFF,
-    SENSOR_MEASUREMENT_DATE, ATTR_MEASUREMENT_DATE,
+    SENSOR_TYPE_LOW_TARIFF,
+    SENSOR_TYPE_NORMAL_TARIFF
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -214,6 +219,10 @@ class GreenchoiceEnergySensor(Entity):
     @property
     def use_gas(self) -> bool:
         return self._use_gas
+
+    @property
+    def device_class(self) -> str:
+        return DEVICE_CLASS_MONETARY
 
     @property
     def icon(self) -> str:
