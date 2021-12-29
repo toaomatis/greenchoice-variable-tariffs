@@ -14,6 +14,7 @@ from homeassistant.const import (
     CONF_NAME,
     CURRENCY_EURO,
     DEVICE_CLASS_MONETARY,
+    ENERGY_KILO_WATT_HOUR,
     STATE_UNKNOWN
 )
 from homeassistant.exceptions import PlatformNotReady
@@ -267,13 +268,13 @@ class GreenchoiceEnergySensor(Entity):
         if self._measurement_type == SENSOR_TYPE_NORMAL_TARIFF:
             self._icon = 'mdi:lightning-bolt'
             self._name = SENSOR_TYPE_NORMAL_TARIFF
-            self._unit_of_measurement = CURRENCY_EURO
+            self._unit_of_measurement = f'{CURRENCY_EURO}/{ENERGY_KILO_WATT_HOUR}'
         if self._measurement_type == SENSOR_TYPE_LOW_TARIFF:
             self._icon = 'mdi:lightning-bolt-outline'
             self._name = SENSOR_TYPE_LOW_TARIFF
-            self._unit_of_measurement = CURRENCY_EURO
+            self._unit_of_measurement = f'{CURRENCY_EURO}/{ENERGY_KILO_WATT_HOUR}'
         if self._measurement_type == SENSOR_TYPE_GAS_TARIFF:
             self._icon = 'mdi:fire'
             self._name = SENSOR_TYPE_GAS_TARIFF
-            self._unit_of_measurement = CURRENCY_EURO
+            self._unit_of_measurement = f'{CURRENCY_EURO}/{ENERGY_KILO_WATT_HOUR}'
         _LOGGER.debug(f'Sensor Updated {self=}')
