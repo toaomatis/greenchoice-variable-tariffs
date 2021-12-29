@@ -117,7 +117,7 @@ class GreenchoiceApiData:
                 _LOGGER.debug(f'Status: {response.status}')
                 _LOGGER.debug(f"Content-type: {response.headers['content-type']}")
 
-                html = await response.text()
+                html = await response.json()
                 _LOGGER.debug(f"Body: {html=}")
 
         now = datetime.now()
