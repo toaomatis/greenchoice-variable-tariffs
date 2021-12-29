@@ -1,11 +1,10 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Callable, Optional
+from typing import Optional
 
 import aiohttp
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from aiohttp import http
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
     CONF_NAME, STATE_UNKNOWN, ATTR_UNIT_OF_MEASUREMENT
@@ -65,7 +64,7 @@ async def async_setup_platform(
     use_gas = config.get(CONF_USE_GAS)
 
     greenchoice_api = GreenchoiceApiData(postal_code, use_normal_tariff, use_low_tariff, use_gas)
-    await greenchoice_api.update()
+    await greenchoice_api.async_update()
     if greenchoice_api is None:
         raise PlatformNotReady
 
@@ -95,7 +94,7 @@ class GreenchoiceApiData:
         self.result = {}
 
     @Throttle(SCAN_INTERVAL)
-    async def update(self):
+    async def async_update(self):
         _LOGGER.debug(f'API Update')
         self.result = {}
         parameters = {}
@@ -132,7 +131,8 @@ class GreenchoiceApiData:
 class GreenchoiceEnergySensor(Entity):
     """Greenchoice Energy Tariff Sensor representation."""
 
-    def __init__(self, greenchoice_api: GreenchoiceApiData, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
+    def __init__(self, greenchoice_api: GreenchoiceApiData, name, postal_code, use_normal_tariff, use_low_tariff,
+                 use_gas,
                  measurement_type, ):
         self._api = greenchoice_api
         self._name = name
@@ -195,9 +195,9 @@ class GreenchoiceEnergySensor(Entity):
             ATTR_UNIT_OF_MEASUREMENT: self._unit_of_measurement
         }
 
-    async def update(self) -> None:
+    async def async_update(self) -> None:
         """Get the latest data from the Greenchoice API."""
-        await self._api.update()
+        await self._api.async_update()
 
         data = self._api.result
         _LOGGER.debug(f'Sensor Update {self._measurement_type=}')
