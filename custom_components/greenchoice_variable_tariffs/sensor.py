@@ -7,7 +7,10 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
-    CONF_NAME, STATE_UNKNOWN, ATTR_UNIT_OF_MEASUREMENT
+    CONF_NAME,
+    STATE_UNKNOWN,
+    ATTR_UNIT_OF_MEASUREMENT,
+    CURRENCY_EURO
 )
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.entity import Entity
@@ -37,7 +40,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 _RESOURCE = 'https://www.greenchoice.nl/umbraco/surface/quotation/GetQuotation'
-# Time between updating data from Greenchoice
+# Time between updating data from Greenchoice API
 SCAN_INTERVAL = timedelta(hours=12)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -71,16 +74,37 @@ async def async_setup_platform(
     sensors = []
     if use_normal_tariff is True:
         sensors.append(
-            GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
-                                    SENSOR_TYPE_NORMAL_TARIFF))
+            GreenchoiceEnergySensor(
+                greenchoice_api,
+                name,
+                postal_code,
+                use_normal_tariff,
+                use_low_tariff,
+                use_gas,
+                SENSOR_TYPE_NORMAL_TARIFF))
+
     if use_low_tariff is True:
         sensors.append(
-            GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
-                                    SENSOR_TYPE_LOW_TARIFF))
+            GreenchoiceEnergySensor(
+                greenchoice_api,
+                name,
+                postal_code,
+                use_normal_tariff,
+                use_low_tariff,
+                use_gas,
+                SENSOR_TYPE_LOW_TARIFF))
+
     if use_gas is True:
         sensors.append(
-            GreenchoiceEnergySensor(greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
-                                    SENSOR_TYPE_GAS_TARIFF))
+            GreenchoiceEnergySensor(
+                greenchoice_api,
+                name,
+                postal_code,
+                use_normal_tariff,
+                use_low_tariff,
+                use_gas,
+                SENSOR_TYPE_GAS_TARIFF))
+
     async_add_entities(sensors, update_before_add=True)
 
 
@@ -97,10 +121,7 @@ class GreenchoiceApiData:
     async def async_update(self):
         _LOGGER.debug(f'API Update')
         self.result = {}
-        parameters = {}
-        parameters['clusterId'] = 146
-        parameters['postcode'] = self._postal_code
-        parameters['huisnummer'] = 1
+        parameters = {'clusterId': 146, 'postcode': self._postal_code, 'huisnummer': 1}
 
         if self._use_normal_tariff and self._use_low_tariff:
             parameters['verbruikStroomHoog'] = 450
@@ -110,8 +131,8 @@ class GreenchoiceApiData:
 
         if self._use_gas:
             parameters['verbruikGas'] = 900
-        _LOGGER.debug(f'{parameters=}')
 
+        _LOGGER.debug(f'{parameters=}')
         async with aiohttp.ClientSession() as session:
             async with session.get(_RESOURCE, data=parameters) as response:
                 _LOGGER.debug(f'Status: {response.status}')
@@ -130,21 +151,21 @@ class GreenchoiceApiData:
         if 'producten' not in result:
             return
 
-        producten = result['producten']
+        products = result['producten']
         now = datetime.now()
-        for product in producten:
+        for product in products:
             if 'tarieven' not in product:
                 pass
 
-            tarieven = product['tarieven']
-            for tarief in tarieven:
-                key = tarief['key']
+            tariffs = product['tarieven']
+            for tariff in tariffs:
+                key = tariff['key']
                 if key == 'stroom-norm-allin' and self._use_normal_tariff:
-                    self.result[SENSOR_TYPE_NORMAL_TARIFF] = tarief['tariefInclBtw']
+                    self.result[SENSOR_TYPE_NORMAL_TARIFF] = tariff['tariefInclBtw']
                 if key == 'stroom-dal-allin' and self._use_low_tariff:
-                    self.result[SENSOR_TYPE_LOW_TARIFF] = tarief['tariefInclBtw']
+                    self.result[SENSOR_TYPE_LOW_TARIFF] = tariff['tariefInclBtw']
                 if key == 'gas-levering-allin' and self._use_gas:
-                    self.result[SENSOR_TYPE_GAS_TARIFF] = tarief['tariefInclBtw']
+                    self.result[SENSOR_TYPE_GAS_TARIFF] = tariff['tariefInclBtw']
 
         self.result[SENSOR_MEASUREMENT_DATE] = now.isoformat()
         _LOGGER.debug(f'API Updated {self.result=}')
@@ -153,9 +174,14 @@ class GreenchoiceApiData:
 class GreenchoiceEnergySensor(Entity):
     """Greenchoice Energy Tariff Sensor representation."""
 
-    def __init__(self, greenchoice_api: GreenchoiceApiData, name, postal_code, use_normal_tariff, use_low_tariff,
-                 use_gas,
-                 measurement_type, ):
+    def __init__(self,
+                 greenchoice_api: GreenchoiceApiData,
+                 name: str,
+                 postal_code: str,
+                 use_normal_tariff: bool,
+                 use_low_tariff: bool,
+                 use_gas: bool,
+                 measurement_type: str):
         self._api = greenchoice_api
         self._name = name
         self._postal_code = postal_code
@@ -233,13 +259,13 @@ class GreenchoiceEnergySensor(Entity):
         if self._measurement_type == SENSOR_TYPE_NORMAL_TARIFF:
             self._icon = 'mdi:lightning-bolt'
             self._name = SENSOR_TYPE_NORMAL_TARIFF
-            self._unit_of_measurement = "€"
+            self._unit_of_measurement = CURRENCY_EURO
         if self._measurement_type == SENSOR_TYPE_LOW_TARIFF:
             self._icon = 'mdi:lightning-bolt-outline'
             self._name = SENSOR_TYPE_LOW_TARIFF
-            self._unit_of_measurement = "€"
+            self._unit_of_measurement = CURRENCY_EURO
         if self._measurement_type == SENSOR_TYPE_GAS_TARIFF:
             self._icon = 'mdi:fire'
             self._name = SENSOR_TYPE_GAS_TARIFF
-            self._unit_of_measurement = "€"
+            self._unit_of_measurement = CURRENCY_EURO
         _LOGGER.debug(f'Sensor Updated {self=}')
