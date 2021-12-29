@@ -13,7 +13,7 @@ from tests.const import MOCK_CONFIG
 async def test_greenchoice_api(hass):
     """Test Greenchoice API."""
     api = GreenchoiceApiData(**MOCK_CONFIG)
-    api.async_update()
+    await api.async_update()
     result = api.result
     assert SENSOR_TYPE_NORMAL_TARIFF in result
     assert SENSOR_TYPE_LOW_TARIFF in result
