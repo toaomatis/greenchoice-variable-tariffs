@@ -29,14 +29,13 @@ from homeassistant.util import Throttle
 from .const import (
     ATTR_MEASUREMENT_DATE,
     CONF_POSTAL_CODE,
+    CONF_USE_ELECTRICITY,
     CONF_USE_GAS,
     CONF_USE_LOW_TARIFF,
-    CONF_USE_NORMAL_TARIFF,
     DEFAULT_NAME,
-    DEFAULT_POSTAL_CODE,
+    DEFAULT_USE_ELECTRICITY,
     DEFAULT_USE_GAS,
     DEFAULT_USE_LOW_TARIFF,
-    DEFAULT_USE_NORMAL_TARIFF,
     SENSOR_MEASUREMENT_DATE,
     SENSOR_TYPE_GAS_TARIFF,
     SENSOR_TYPE_LOW_TARIFF,
@@ -50,8 +49,8 @@ SCAN_INTERVAL = timedelta(hours=12)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Optional(CONF_POSTAL_CODE, default=DEFAULT_POSTAL_CODE): cv.string,
-    vol.Optional(CONF_USE_NORMAL_TARIFF, default=DEFAULT_USE_NORMAL_TARIFF): cv.boolean,
+    vol.Required(CONF_POSTAL_CODE): cv.string,
+    vol.Optional(CONF_USE_ELECTRICITY, default=DEFAULT_USE_ELECTRICITY): cv.boolean,
     vol.Optional(CONF_USE_LOW_TARIFF, default=DEFAULT_USE_LOW_TARIFF): cv.boolean,
     vol.Optional(CONF_USE_GAS, default=DEFAULT_USE_GAS): cv.boolean,
 })
@@ -67,23 +66,23 @@ async def async_setup_platform(
     _LOGGER.debug(f'Async setup platform')
     name = config.get(CONF_NAME)
     postal_code = config.get(CONF_POSTAL_CODE)
-    use_normal_tariff = config.get(CONF_USE_NORMAL_TARIFF)
+    use_electricity = config.get(CONF_USE_ELECTRICITY)
     use_low_tariff = config.get(CONF_USE_LOW_TARIFF)
     use_gas = config.get(CONF_USE_GAS)
 
-    greenchoice_api = GreenchoiceApiData(postal_code, use_normal_tariff, use_low_tariff, use_gas)
+    greenchoice_api = GreenchoiceApiData(postal_code, use_electricity, use_low_tariff, use_gas)
     await greenchoice_api.async_update()
     if greenchoice_api is None:
         raise PlatformNotReady
 
     sensors = []
-    if use_normal_tariff is True:
+    if use_electricity is True:
         sensors.append(
             GreenchoiceEnergySensor(
                 greenchoice_api,
                 name,
                 postal_code,
-                use_normal_tariff,
+                use_electricity,
                 use_low_tariff,
                 use_gas,
                 SENSOR_TYPE_NORMAL_TARIFF))
@@ -94,7 +93,7 @@ async def async_setup_platform(
                 greenchoice_api,
                 name,
                 postal_code,
-                use_normal_tariff,
+                use_electricity,
                 use_low_tariff,
                 use_gas,
                 SENSOR_TYPE_LOW_TARIFF))
@@ -105,7 +104,7 @@ async def async_setup_platform(
                 greenchoice_api,
                 name,
                 postal_code,
-                use_normal_tariff,
+                use_electricity,
                 use_low_tariff,
                 use_gas,
                 SENSOR_TYPE_GAS_TARIFF))
@@ -114,10 +113,10 @@ async def async_setup_platform(
 
 
 class GreenchoiceApiData:
-    def __init__(self, postal_code: str, use_normal_tariff: bool, use_low_tariff: bool, use_gas: bool) -> None:
+    def __init__(self, postal_code: str, use_electricity: bool, use_low_tariff: bool, use_gas: bool) -> None:
         self._resource = _RESOURCE
         self._postal_code = postal_code
-        self._use_normal_tariff = use_normal_tariff
+        self._use_electricity = use_electricity
         self._use_low_tariff = use_low_tariff
         self._use_gas = use_gas
         self.result = {}
@@ -128,10 +127,10 @@ class GreenchoiceApiData:
         self.result = {}
         parameters = {'clusterId': 146, 'postcode': self._postal_code, 'huisnummer': 1}
 
-        if self._use_normal_tariff and self._use_low_tariff:
+        if self._use_electricity and self._use_low_tariff:
             parameters['verbruikStroomHoog'] = 450
             parameters['verbruikStroomLaag'] = 450
-        elif self._use_normal_tariff or self._use_low_tariff:
+        elif self._use_electricity and not self._use_low_tariff:
             parameters['verbruikStroom'] = 450
 
         if self._use_gas:
@@ -165,7 +164,7 @@ class GreenchoiceApiData:
             tariffs = product['tarieven']
             for tariff in tariffs:
                 key = tariff['key']
-                if key == 'stroom-norm-allin' and self._use_normal_tariff:
+                if key == 'stroom-norm-allin' and self._use_electricity:
                     self.result[SENSOR_TYPE_NORMAL_TARIFF] = tariff['tariefInclBtw']
                 if key == 'stroom-dal-allin' and self._use_low_tariff:
                     self.result[SENSOR_TYPE_LOW_TARIFF] = tariff['tariefInclBtw']
@@ -183,14 +182,14 @@ class GreenchoiceEnergySensor(Entity):
                  greenchoice_api: GreenchoiceApiData,
                  name: str,
                  postal_code: str,
-                 use_normal_tariff: bool,
+                 use_electricity: bool,
                  use_low_tariff: bool,
                  use_gas: bool,
                  measurement_type: str):
         self._api = greenchoice_api
         self._name = name
         self._postal_code = postal_code
-        self._use_normal_tariff = use_normal_tariff
+        self._use_electricity = use_electricity
         self._use_low_tariff = use_low_tariff
         self._use_gas = use_gas
         self._measurement_type = measurement_type
@@ -209,8 +208,8 @@ class GreenchoiceEnergySensor(Entity):
         return self._postal_code
 
     @property
-    def use_normal_tariff(self) -> bool:
-        return self._use_normal_tariff
+    def use_electricity(self) -> bool:
+        return self._use_electricity
 
     @property
     def use_low_tariff(self) -> bool:

@@ -1,0 +1,224 @@
+{
+    "message": null,
+    "result": {
+        "productClusterId": 146,
+        "postcode": "9999ZZ",
+        "huisnummer": 1,
+        "totaalBedragInclBtw": 2297,
+        "totaalBedragExclBtw": 1898.35,
+        "maandBedragInclBtw": 191.42,
+        "maandBedragExclBtw": 158.2,
+        "producten": [
+            {
+                "refId": 75691,
+                "terugleveringVolumegrensInKwh": null,
+                "key": "stroom",
+                "omschrijving": "Groene stroom",
+                "totaalBedragInclBtw": 195.87,
+                "totaalBedragExclBtw": 161.87,
+                "tarieven": [
+                    {
+                        "key": "stroom-norm-allin",
+                        "omschrijving": "Normaaltarief",
+                        "tariefInclBtw": 0.5367,
+                        "tariefExclBtw": 0.4436,
+                        "aantal": 450,
+                        "bedragInclBtw": 241.52,
+                        "bedragExclBtw": 199.6,
+                        "eenheid": 0,
+                        "tarieven": [
+                            {
+                                "key": "stroom-norm-tarief",
+                                "omschrijving": "Levering",
+                                "tariefInclBtw": 0.3863,
+                                "tariefExclBtw": 0.3193,
+                                "aantal": 450,
+                                "bedragInclBtw": 173.85,
+                                "bedragExclBtw": 143.68,
+                                "eenheid": 0,
+                                "tarieven": []
+                            },
+                            {
+                                "key": "stroom-norm-ode",
+                                "omschrijving": "Opslag Duurzame Energie",
+                                "tariefInclBtw": 0.0363,
+                                "tariefExclBtw": 0.03,
+                                "aantal": 450,
+                                "bedragInclBtw": 16.34,
+                                "bedragExclBtw": 13.5,
+                                "eenheid": 0,
+                                "tarieven": []
+                            },
+                            {
+                                "key": "stroom-norm-eb",
+                                "omschrijving": "Energiebelasting",
+                                "tariefInclBtw": 0.1141,
+                                "tariefExclBtw": 0.0943,
+                                "aantal": 450,
+                                "bedragInclBtw": 51.34,
+                                "bedragExclBtw": 42.43,
+                                "eenheid": 0,
+                                "tarieven": []
+                            }
+                        ]
+                    },
+                    {
+                        "key": "stroom-dal-allin",
+                        "omschrijving": "Daltarief",
+                        "tariefInclBtw": 0.4136,
+                        "tariefExclBtw": 0.3418,
+                        "aantal": 450,
+                        "bedragInclBtw": 186.1,
+                        "bedragExclBtw": 153.8,
+                        "eenheid": 0,
+                        "tarieven": [
+                            {
+                                "key": "stroom-dal-tarief",
+                                "omschrijving": "Levering",
+                                "tariefInclBtw": 0.2632,
+                                "tariefExclBtw": 0.2175,
+                                "aantal": 450,
+                                "bedragInclBtw": 118.43,
+                                "bedragExclBtw": 97.88,
+                                "eenheid": 0,
+                                "tarieven": []
+                            },
+                            {
+                                "key": "stroom-dal-ode",
+                                "omschrijving": "Opslag Duurzame Energie",
+                                "tariefInclBtw": 0.0363,
+                                "tariefExclBtw": 0.03,
+                                "aantal": 450,
+                                "bedragInclBtw": 16.34,
+                                "bedragExclBtw": 13.5,
+                                "eenheid": 0,
+                                "tarieven": []
+                            },
+                            {
+                                "key": "stroom-dal-eb",
+                                "omschrijving": "Energiebelasting",
+                                "tariefInclBtw": 0.1141,
+                                "tariefExclBtw": 0.0943,
+                                "aantal": 450,
+                                "bedragInclBtw": 51.34,
+                                "bedragExclBtw": 42.43,
+                                "eenheid": 0,
+                                "tarieven": []
+                            }
+                        ]
+                    },
+                    {
+                        "key": "stroom-vastrecht",
+                        "omschrijving": "Vaste leveringskosten",
+                        "tariefInclBtw": 6.3333,
+                        "tariefExclBtw": 5.2342,
+                        "aantal": 12,
+                        "bedragInclBtw": 76,
+                        "bedragExclBtw": 62.81,
+                        "eenheid": 2,
+                        "tarieven": []
+                    },
+                    {
+                        "key": "stroom-netbeheer",
+                        "omschrijving": "Netbeheerkosten",
+                        "tariefInclBtw": 20.9011,
+                        "tariefExclBtw": 17.2736,
+                        "aantal": 12,
+                        "bedragInclBtw": 250.81,
+                        "bedragExclBtw": 207.28,
+                        "eenheid": 2,
+                        "tarieven": []
+                    },
+                    {
+                        "key": "stroom-reb",
+                        "omschrijving": "Vermindering energiebelasting",
+                        "tariefInclBtw": -558.5602,
+                        "tariefExclBtw": -461.62,
+                        "aantal": 1,
+                        "bedragInclBtw": -558.56,
+                        "bedragExclBtw": -461.62,
+                        "eenheid": 3,
+                        "tarieven": []
+                    }
+                ]
+            },
+            {
+                "refId": 75690,
+                "terugleveringVolumegrensInKwh": null,
+                "key": "gas",
+                "omschrijving": "Groen gas",
+                "totaalBedragInclBtw": 2101.13,
+                "totaalBedragExclBtw": 1736.48,
+                "tarieven": [
+                    {
+                        "key": "gas-vastrecht",
+                        "omschrijving": "Vaste leveringskosten",
+                        "tariefInclBtw": 6.3333,
+                        "tariefExclBtw": 5.2342,
+                        "aantal": 12,
+                        "bedragInclBtw": 76,
+                        "bedragExclBtw": 62.81,
+                        "eenheid": 2,
+                        "tarieven": []
+                    },
+                    {
+                        "key": "gas-netbeheer",
+                        "omschrijving": "Netbeheerkosten",
+                        "tariefInclBtw": 15.1265,
+                        "tariefExclBtw": 12.5012,
+                        "aantal": 12,
+                        "bedragInclBtw": 181.52,
+                        "bedragExclBtw": 150.02,
+                        "eenheid": 2,
+                        "tarieven": []
+                    },
+                    {
+                        "key": "gas-levering-allin",
+                        "omschrijving": "Tarief",
+                        "tariefInclBtw": 2.0485,
+                        "tariefExclBtw": 1.6929,
+                        "aantal": 900,
+                        "bedragInclBtw": 1843.61,
+                        "bedragExclBtw": 1523.65,
+                        "eenheid": 1,
+                        "tarieven": [
+                            {
+                                "key": "gas-levering-tarief",
+                                "omschrijving": "Levering",
+                                "tariefInclBtw": 1.5237,
+                                "tariefExclBtw": 1.2593,
+                                "aantal": 900,
+                                "bedragInclBtw": 1371.36,
+                                "bedragExclBtw": 1133.35,
+                                "eenheid": 1,
+                                "tarieven": []
+                            },
+                            {
+                                "key": "gas-levering-ode",
+                                "omschrijving": "Opslag Duurzame Energie",
+                                "tariefInclBtw": 0.103,
+                                "tariefExclBtw": 0.0851,
+                                "aantal": 900,
+                                "bedragInclBtw": 92.67,
+                                "bedragExclBtw": 76.59,
+                                "eenheid": 1,
+                                "tarieven": []
+                            },
+                            {
+                                "key": "gas-levering-eb",
+                                "omschrijving": "Energiebelasting",
+                                "tariefInclBtw": 0.4218,
+                                "tariefExclBtw": 0.3486,
+                                "aantal": 900,
+                                "bedragInclBtw": 379.58,
+                                "bedragExclBtw": 313.7,
+                                "eenheid": 1,
+                                "tarieven": []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
