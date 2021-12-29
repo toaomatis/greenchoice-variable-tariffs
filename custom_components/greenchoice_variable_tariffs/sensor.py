@@ -2,8 +2,10 @@ import logging
 from datetime import datetime, timedelta
 from typing import Callable, Optional
 
+import aiohttp
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
+from aiohttp import http
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
     CONF_NAME, STATE_UNKNOWN, ATTR_UNIT_OF_MEASUREMENT
@@ -35,7 +37,7 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-_RESOURCE = 'greenchoice.nl'
+_RESOURCE = 'https://www.greenchoice.nl/umbraco/surface/quotation/GetQuotation'
 # Time between updating data from Greenchoice
 SCAN_INTERVAL = timedelta(hours=12)
 
@@ -48,7 +50,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-async def async_setup_entry(
+async def async_setup_platform(
         hass: HomeAssistantType,
         config: ConfigType,
         async_add_entities: AddEntitiesCallback,
@@ -63,7 +65,7 @@ async def async_setup_entry(
     use_gas = config.get(CONF_USE_GAS)
 
     greenchoice_api = GreenchoiceApiData(postal_code, use_normal_tariff, use_low_tariff, use_gas)
-    greenchoice_api.update()
+    await greenchoice_api.update()
     if greenchoice_api is None:
         raise PlatformNotReady
 
@@ -83,10 +85,54 @@ async def async_setup_entry(
     async_add_entities(sensors, update_before_add=True)
 
 
+class GreenchoiceApiData:
+    def __init__(self, postal_code: str, use_normal_tariff: bool, use_low_tariff: bool, use_gas: bool) -> None:
+        self._resource = _RESOURCE
+        self._postal_code = postal_code
+        self._use_normal_tariff = use_normal_tariff
+        self._use_low_tariff = use_low_tariff
+        self._use_gas = use_gas
+        self.result = {}
+
+    @Throttle(SCAN_INTERVAL)
+    async def update(self):
+        _LOGGER.debug(f'API Update')
+        self.result = {}
+        parameters = {}
+        parameters['clusterId'] = 146
+        parameters['postcode'] = self._postal_code
+        parameters['huisnummer'] = 1
+
+        if self._use_normal_tariff and self._use_low_tariff:
+            parameters['verbruikStroomHoog'] = 450
+            parameters['verbruikStroomLaag'] = 450
+        elif self._use_normal_tariff or self._use_low_tariff:
+            parameters['verbruikStroom'] = 450
+
+        if self._use_gas:
+            parameters['verbruikGas'] = 900
+        _LOGGER.debug(f'{parameters=}')
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(_RESOURCE, data=parameters) as response:
+                _LOGGER.debug(f'Status: {response.status}')
+                _LOGGER.debug(f"Content-type: {response.headers['content-type']}")
+
+                html = await response.text()
+                _LOGGER.debug(f"Body: {html=}")
+
+        now = datetime.now()
+        self.result[SENSOR_TYPE_NORMAL_TARIFF] = now.minute * 2
+        self.result[SENSOR_TYPE_LOW_TARIFF] = now.minute * 1
+        self.result[SENSOR_TYPE_GAS_TARIFF] = now.minute * 3
+        self.result[SENSOR_MEASUREMENT_DATE] = now.isoformat()
+        _LOGGER.debug(f'API Updated {self.result=}')
+
+
 class GreenchoiceEnergySensor(Entity):
     """Greenchoice Energy Tariff Sensor representation."""
 
-    def __init__(self, greenchoice_api, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
+    def __init__(self, greenchoice_api: GreenchoiceApiData, name, postal_code, use_normal_tariff, use_low_tariff, use_gas,
                  measurement_type, ):
         self._api = greenchoice_api
         self._name = name
@@ -149,9 +195,9 @@ class GreenchoiceEnergySensor(Entity):
             ATTR_UNIT_OF_MEASUREMENT: self._unit_of_measurement
         }
 
-    def update(self) -> None:
+    async def update(self) -> None:
         """Get the latest data from the Greenchoice API."""
-        self._api.update()
+        await self._api.update()
 
         data = self._api.result
         _LOGGER.debug(f'Sensor Update {self._measurement_type=}')
@@ -175,39 +221,3 @@ class GreenchoiceEnergySensor(Entity):
             self._name = SENSOR_TYPE_GAS_TARIFF
             self._unit_of_measurement = "€"
         _LOGGER.debug(f'Sensor Updated {self=}')
-
-
-class GreenchoiceApiData:
-    def __init__(self, postal_code: str, use_normal_tariff: bool, use_low_tariff: bool, use_gas: bool) -> None:
-        self._resource = _RESOURCE
-        self._postal_code = postal_code
-        self._use_normal_tariff = use_normal_tariff
-        self._use_low_tariff = use_low_tariff
-        self._use_gas = use_gas
-        self.result = {}
-
-    @Throttle(SCAN_INTERVAL)
-    def update(self):
-        _LOGGER.debug(f'API Update')
-        self.result = {}
-        parameters = {}
-        parameters['clusterId'] = 146
-        parameters['postcode'] = self._postal_code
-        parameters['huisnummer'] = 1
-
-        if self._use_normal_tariff and self._use_low_tariff:
-            parameters['verbruikStroomHoog'] = 450
-            parameters['verbruikStroomLaag'] = 450
-        elif self._use_normal_tariff or self._use_low_tariff:
-            parameters['verbruikStroom'] = 450
-
-        if self._use_gas:
-            parameters['verbruikGas'] = 900
-
-
-        now = datetime.now()
-        self.result[SENSOR_TYPE_NORMAL_TARIFF] = now.minute * 2
-        self.result[SENSOR_TYPE_LOW_TARIFF] = now.minute * 1
-        self.result[SENSOR_TYPE_GAS_TARIFF] = now.minute * 3
-        self.result[SENSOR_MEASUREMENT_DATE] = now.isoformat()
-        _LOGGER.debug(f'API Updated {self.result=}')
