@@ -1,4 +1,8 @@
 """Test component setup."""
+import json
+
+from homeassistant.core import HomeAssistant
+from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.greenchoice_variable_tariffs.const import (
     SENSOR_MEASUREMENT_DATE,
@@ -10,9 +14,14 @@ from custom_components.greenchoice_variable_tariffs.sensor import GreenchoiceApi
 from tests.const import MOCK_CONFIG
 
 
-async def test_greenchoice_api(hass):
+async def test_greenchoice_api(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, skip_setup: bool = False, ):
     """Test Greenchoice API."""
+    with open('fixtures/01_response.json') as f:
+        response_dict = json.load(f)
+
+    aioclient_mock.get('https://www.greenchoice.nl/umbraco/surface/quotation/GetQuotation', json=response_dict)
     api = GreenchoiceApiData(**MOCK_CONFIG)
+
     await api.async_update()
     result = api.result
     assert SENSOR_TYPE_NORMAL_TARIFF in result
