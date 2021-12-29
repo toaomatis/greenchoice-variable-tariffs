@@ -120,10 +120,32 @@ class GreenchoiceApiData:
                 html = await response.json()
                 _LOGGER.debug(f"Body: {html=}")
 
+        if html is None:
+            return
+
+        if 'result' not in html:
+            return
+
+        result = html['result']
+        if 'producten' not in result:
+            return
+
+        producten = result['producten']
         now = datetime.now()
-        self.result[SENSOR_TYPE_NORMAL_TARIFF] = now.minute * 2
-        self.result[SENSOR_TYPE_LOW_TARIFF] = now.minute * 1
-        self.result[SENSOR_TYPE_GAS_TARIFF] = now.minute * 3
+        for product in producten:
+            if 'tarieven' not in product:
+                pass
+
+            tarieven = product['tarieven']
+            for tarief in tarieven:
+                key = tarief['key']
+                if key == 'stroom-norm-allin' and self._use_normal_tariff:
+                    self.result[SENSOR_TYPE_NORMAL_TARIFF] = tarief['tariefInclBtw']
+                if key == 'stroom-dal-allin' and self._use_low_tariff:
+                    self.result[SENSOR_TYPE_LOW_TARIFF] = tarief['tariefInclBtw']
+                if key == 'gas-levering-allin' and self._use_gas:
+                    self.result[SENSOR_TYPE_GAS_TARIFF] = tarief['tariefInclBtw']
+
         self.result[SENSOR_MEASUREMENT_DATE] = now.isoformat()
         _LOGGER.debug(f'API Updated {self.result=}')
 
