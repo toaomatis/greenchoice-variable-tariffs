@@ -29,14 +29,13 @@ from homeassistant.util import Throttle
 from .const import (
     ATTR_MEASUREMENT_DATE,
     CONF_POSTAL_CODE,
+    CONF_USE_ELECTRICITY,
     CONF_USE_GAS,
     CONF_USE_LOW_TARIFF,
-    CONF_USE_NORMAL_TARIFF,
     DEFAULT_NAME,
-    DEFAULT_POSTAL_CODE,
+    DEFAULT_USE_ELECTRICITY,
     DEFAULT_USE_GAS,
     DEFAULT_USE_LOW_TARIFF,
-    DEFAULT_USE_NORMAL_TARIFF,
     SENSOR_MEASUREMENT_DATE,
     SENSOR_TYPE_GAS_TARIFF,
     SENSOR_TYPE_LOW_TARIFF,
@@ -50,8 +49,8 @@ SCAN_INTERVAL = timedelta(hours=12)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Optional(CONF_POSTAL_CODE, default=DEFAULT_POSTAL_CODE): cv.string,
-    vol.Optional(CONF_USE_NORMAL_TARIFF, default=DEFAULT_USE_NORMAL_TARIFF): cv.boolean,
+    vol.Required(CONF_POSTAL_CODE): cv.string,
+    vol.Optional(CONF_USE_ELECTRICITY, default=DEFAULT_USE_ELECTRICITY): cv.boolean,
     vol.Optional(CONF_USE_LOW_TARIFF, default=DEFAULT_USE_LOW_TARIFF): cv.boolean,
     vol.Optional(CONF_USE_GAS, default=DEFAULT_USE_GAS): cv.boolean,
 })
@@ -67,7 +66,7 @@ async def async_setup_platform(
     _LOGGER.debug(f'Async setup platform')
     name = config.get(CONF_NAME)
     postal_code = config.get(CONF_POSTAL_CODE)
-    use_normal_tariff = config.get(CONF_USE_NORMAL_TARIFF)
+    use_normal_tariff = config.get(CONF_USE_ELECTRICITY)
     use_low_tariff = config.get(CONF_USE_LOW_TARIFF)
     use_gas = config.get(CONF_USE_GAS)
 
