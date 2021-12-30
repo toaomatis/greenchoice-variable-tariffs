@@ -46,7 +46,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 _RESOURCE = 'https://www.greenchoice.nl/umbraco/surface/quotation/GetQuotation'
 # Time between updating data from Greenchoice API
-SCAN_INTERVAL = timedelta(hours=12)
+SCAN_INTERVAL = timedelta(minutes=10)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
