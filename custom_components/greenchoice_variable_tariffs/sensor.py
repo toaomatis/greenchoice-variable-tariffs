@@ -254,10 +254,11 @@ class GreenchoiceEnergySensor(Entity):
 
     async def async_update(self) -> None:
         """Get the latest data from the Greenchoice API."""
-        await self._api.async_update()
+        _LOGGER.debug(f'Sensor Update before API {self._measurement_type=}')
+        await self._api.async_update(no_throttle=True)
 
         data = self._api.result
-        _LOGGER.debug(f'Sensor Update {self._measurement_type=}')
+        _LOGGER.debug(f'Sensor Update after API {self._measurement_type=} {data=}')
 
         if data is None or self._measurement_type not in data:
             self._state = STATE_UNKNOWN
