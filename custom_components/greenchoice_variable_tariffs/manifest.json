@@ -3,6 +3,7 @@
   "config_flow": false,
   "dependencies": [],
   "documentation": "https://github.com/toaomatis/greenchoice-variable-tariffs",
+  "issue_tracker": "https://github.com/toaomatis/greenchoice-variable-tariffs/issues",
   "domain": "greenchoice_variable_tariffs",
   "iot_class": "cloud_polling",
   "name": "Greenchoice Variable Tariffs Sensor",
