@@ -5,7 +5,7 @@ from datetime import (
 )
 from typing import Optional
 
-import aiohttp
+import async_timeout
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.components.sensor import PLATFORM_SCHEMA
@@ -18,6 +18,7 @@ from homeassistant.const import (
     STATE_UNKNOWN
 )
 from homeassistant.exceptions import PlatformNotReady
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import (
@@ -71,7 +72,7 @@ async def async_setup_platform(
     use_low_tariff = config.get(CONF_USE_LOW_TARIFF)
     use_gas = config.get(CONF_USE_GAS)
 
-    greenchoice_api = GreenchoiceApiData(postal_code, use_electricity, use_low_tariff, use_gas)
+    greenchoice_api = GreenchoiceApiData(hass, postal_code, use_electricity, use_low_tariff, use_gas)
     await greenchoice_api.async_update()
     if greenchoice_api is None:
         raise PlatformNotReady
@@ -114,8 +115,10 @@ async def async_setup_platform(
 
 
 class GreenchoiceApiData:
-    def __init__(self, postal_code: str, use_electricity: bool, use_low_tariff: bool, use_gas: bool) -> None:
+    def __init__(self, hass: HomeAssistantType, postal_code: str, use_electricity: bool,
+                 use_low_tariff: bool, use_gas: bool) -> None:
         self._resource = _RESOURCE
+        self._hass = hass
         self._postal_code = postal_code
         self._use_electricity = use_electricity
         self._use_low_tariff = use_low_tariff
@@ -138,13 +141,14 @@ class GreenchoiceApiData:
             parameters['verbruikGas'] = 900
 
         _LOGGER.debug(f'{parameters=}')
-        async with aiohttp.ClientSession() as session:
-            async with session.get(_RESOURCE, data=parameters) as response:
-                _LOGGER.debug(f'Status: {response.status}')
-                _LOGGER.debug(f"Content-type: {response.headers['content-type']}")
+        session = async_get_clientsession(self._hass)
+        async with async_timeout.timeout(10):
+            response = await session.get(_RESOURCE, data=parameters)
+            _LOGGER.debug(f'Status: {response.status}')
+            _LOGGER.debug(f"Content-type: {response.headers['content-type']}")
 
-                html = await response.json()
-                _LOGGER.debug(f"Body: {html=}")
+            html = await response.json()
+            _LOGGER.debug(f"Body: {html=}")
 
         if html is None:
             return
