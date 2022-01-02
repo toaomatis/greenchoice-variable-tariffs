@@ -139,16 +139,16 @@ class GreenchoiceApiData:
             _LOGGER.debug(f'Status: {response.status}')
             _LOGGER.debug(f"Content-type: {response.headers['content-type']}")
 
-            html = await response.json()
-            _LOGGER.debug(f"Body: {html=}")
+            json = await response.json()
+            _LOGGER.debug(f"Body: {json=}")
 
-        if html is None:
+        if json is None:
             return
 
-        if 'result' not in html:
+        if 'result' not in json:
             return
 
-        result = html['result']
+        result = json['result']
         if 'producten' not in result:
             return
 
