@@ -17,6 +17,10 @@ ATTR_UPDATE_CYCLE = 'update_cycle'
 ATTR_ICON = 'icon'
 ATTR_MEASUREMENT_DATE = 'date'
 
+FRIENDLY_NAME_NORMAL_TARIFF = 'Greenchoice Electricity Normal Tariff'
+FRIENDLY_NAME_LOW_TARIFF = 'Greenchoice Electricity Low Tariff'
+FRIENDLY_NAME_GAS_TARIFF = 'Greenchoice Gas Tariff'
+
 SENSOR_TYPE_NORMAL_TARIFF = 'Normal Tariff'
 SENSOR_TYPE_LOW_TARIFF = 'Low Tariff'
 SENSOR_TYPE_GAS_TARIFF = 'Gas Tariff'

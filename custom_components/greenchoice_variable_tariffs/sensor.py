@@ -39,6 +39,9 @@ from .const import (
     DEFAULT_USE_ELECTRICITY,
     DEFAULT_USE_GAS,
     DEFAULT_USE_LOW_TARIFF,
+    FRIENDLY_NAME_GAS_TARIFF,
+    FRIENDLY_NAME_LOW_TARIFF,
+    FRIENDLY_NAME_NORMAL_TARIFF,
     SENSOR_MEASUREMENT_DATE,
     SENSOR_TYPE_GAS_TARIFF,
     SENSOR_TYPE_LOW_TARIFF,
@@ -83,33 +86,21 @@ async def async_setup_platform(
         sensors.append(
             GreenchoiceEnergySensor(
                 greenchoice_api,
-                name,
-                postal_code,
-                use_electricity,
-                use_low_tariff,
-                use_gas,
+                FRIENDLY_NAME_NORMAL_TARIFF,
                 SENSOR_TYPE_NORMAL_TARIFF))
 
     if use_low_tariff is True:
         sensors.append(
             GreenchoiceEnergySensor(
                 greenchoice_api,
-                name,
-                postal_code,
-                use_electricity,
-                use_low_tariff,
-                use_gas,
+                FRIENDLY_NAME_LOW_TARIFF,
                 SENSOR_TYPE_LOW_TARIFF))
 
     if use_gas is True:
         sensors.append(
             GreenchoiceEnergySensor(
                 greenchoice_api,
-                name,
-                postal_code,
-                use_electricity,
-                use_low_tariff,
-                use_gas,
+                FRIENDLY_NAME_GAS_TARIFF,
                 SENSOR_TYPE_GAS_TARIFF))
 
     async_add_entities(sensors, update_before_add=True)
@@ -187,17 +178,9 @@ class GreenchoiceEnergySensor(Entity):
     def __init__(self,
                  greenchoice_api: GreenchoiceApiData,
                  name: str,
-                 postal_code: str,
-                 use_electricity: bool,
-                 use_low_tariff: bool,
-                 use_gas: bool,
                  measurement_type: str):
         self._api = greenchoice_api
         self._name = name
-        self._postal_code = postal_code
-        self._use_electricity = use_electricity
-        self._use_low_tariff = use_low_tariff
-        self._use_gas = use_gas
         self._measurement_type = measurement_type
         self._measurement_date = None
         self._unit_of_measurement = None
@@ -208,22 +191,6 @@ class GreenchoiceEnergySensor(Entity):
     def name(self) -> str:
         """Return the name of the sensor."""
         return self._name
-
-    @property
-    def postal_code(self) -> str:
-        return self._postal_code
-
-    @property
-    def use_electricity(self) -> bool:
-        return self._use_electricity
-
-    @property
-    def use_low_tariff(self) -> bool:
-        return self._use_low_tariff
-
-    @property
-    def use_gas(self) -> bool:
-        return self._use_gas
 
     @property
     def device_class(self) -> str:
@@ -273,14 +240,11 @@ class GreenchoiceEnergySensor(Entity):
 
         if self._measurement_type == SENSOR_TYPE_NORMAL_TARIFF:
             self._icon = 'mdi:lightning-bolt'
-            self._name = SENSOR_TYPE_NORMAL_TARIFF
             self._unit_of_measurement = f'{CURRENCY_EURO}/{ENERGY_KILO_WATT_HOUR}'
         if self._measurement_type == SENSOR_TYPE_LOW_TARIFF:
             self._icon = 'mdi:lightning-bolt-outline'
-            self._name = SENSOR_TYPE_LOW_TARIFF
             self._unit_of_measurement = f'{CURRENCY_EURO}/{ENERGY_KILO_WATT_HOUR}'
         if self._measurement_type == SENSOR_TYPE_GAS_TARIFF:
             self._icon = 'mdi:fire'
-            self._name = SENSOR_TYPE_GAS_TARIFF
             self._unit_of_measurement = f'{CURRENCY_EURO}/{VOLUME_CUBIC_METERS}'
         _LOGGER.debug(f'Sensor Updated {self=}')
