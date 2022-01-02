@@ -30,3 +30,6 @@ async def test_greenchoice_api(hass: HomeAssistant, aioclient_mock: AiohttpClien
     assert SENSOR_TYPE_LOW_TARIFF in result
     assert SENSOR_TYPE_GAS_TARIFF in result
     assert SENSOR_MEASUREMENT_DATE in result
+    assert result[SENSOR_TYPE_NORMAL_TARIFF] == 0.5367
+    assert result[SENSOR_TYPE_LOW_TARIFF] == 0.4136
+    assert result[SENSOR_TYPE_GAS_TARIFF] == 2.0485
