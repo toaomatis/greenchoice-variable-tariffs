@@ -15,7 +15,8 @@ from homeassistant.const import (
     CURRENCY_EURO,
     DEVICE_CLASS_MONETARY,
     ENERGY_KILO_WATT_HOUR,
-    STATE_UNKNOWN
+    STATE_UNKNOWN,
+    VOLUME_CUBIC_METERS
 )
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -281,5 +282,5 @@ class GreenchoiceEnergySensor(Entity):
         if self._measurement_type == SENSOR_TYPE_GAS_TARIFF:
             self._icon = 'mdi:fire'
             self._name = SENSOR_TYPE_GAS_TARIFF
-            self._unit_of_measurement = f'{CURRENCY_EURO}/{ENERGY_KILO_WATT_HOUR}'
+            self._unit_of_measurement = f'{CURRENCY_EURO}/{VOLUME_CUBIC_METERS}'
         _LOGGER.debug(f'Sensor Updated {self=}')
