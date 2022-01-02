@@ -1,4 +1,4 @@
 pytest
-pytest-cov==2.9.0
+pytest-cov
 pytest-homeassistant-custom-component
 codecov
