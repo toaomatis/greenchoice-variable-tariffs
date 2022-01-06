@@ -21,7 +21,7 @@ from tests.const import (
 )
 
 
-async def test_greenchoice_api_all(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, skip_setup: bool = False, ):
+async def test_greenchoice_api_all(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker):
     """Test Greenchoice API for All sensors."""
     response_dict = json.loads(load_fixture('01_response.json'))
 
@@ -41,7 +41,7 @@ async def test_greenchoice_api_all(hass: HomeAssistant, aioclient_mock: AiohttpC
     assert result[SENSOR_TYPE_GAS_TARIFF] == 2.0485
 
 
-async def test_greenchoice_api_electricity(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, skip_setup: bool = False, ):
+async def test_greenchoice_api_electricity(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker):
     """Test Greenchoice API for Electricity sensors."""
     response_dict = json.loads(load_fixture('01_response.json'))
 
@@ -60,7 +60,7 @@ async def test_greenchoice_api_electricity(hass: HomeAssistant, aioclient_mock: 
     assert result[SENSOR_TYPE_LOW_TARIFF] == 0.4136
 
 
-async def test_greenchoice_api_electricity_normal(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, skip_setup: bool = False, ):
+async def test_greenchoice_api_electricity_normal(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker):
     """Test Greenchoice API for Electricity sensors."""
     response_dict = json.loads(load_fixture('01_response.json'))
 
@@ -78,7 +78,7 @@ async def test_greenchoice_api_electricity_normal(hass: HomeAssistant, aioclient
     assert result[SENSOR_TYPE_NORMAL_TARIFF] == 0.5367
 
 
-async def test_greenchoice_api_gas(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, skip_setup: bool = False, ):
+async def test_greenchoice_api_gas(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker):
     """Test Greenchoice API for Electricity sensors."""
     response_dict = json.loads(load_fixture('01_response.json'))
 
@@ -96,7 +96,7 @@ async def test_greenchoice_api_gas(hass: HomeAssistant, aioclient_mock: AiohttpC
     assert result[SENSOR_TYPE_GAS_TARIFF] == 2.0485
 
 
-async def test_greenchoice_api_none(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, skip_setup: bool = False, ):
+async def test_greenchoice_api_none(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker):
     """Test Greenchoice API for Electricity sensors."""
     response_dict = json.loads(load_fixture('01_response.json'))
 
@@ -113,7 +113,7 @@ async def test_greenchoice_api_none(hass: HomeAssistant, aioclient_mock: Aiohttp
     assert SENSOR_MEASUREMENT_DATE in result
 
 
-async def test_greenchoice_api_empty_response(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, skip_setup: bool = False, ):
+async def test_greenchoice_api_empty_response(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker):
     """Test Greenchoice API for Electricity sensors."""
     aioclient_mock.get('https://www.greenchoice.nl/umbraco/surface/quotation/GetQuotation',
                        json='{}',
@@ -125,7 +125,7 @@ async def test_greenchoice_api_empty_response(hass: HomeAssistant, aioclient_moc
     assert result == {}
 
 
-async def test_greenchoice_api_result_response(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker, skip_setup: bool = False, ):
+async def test_greenchoice_api_result_response(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker):
     """Test Greenchoice API for Electricity sensors."""
     response_dict = json.loads(load_fixture('02_response.json'))
 
