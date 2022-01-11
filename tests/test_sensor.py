@@ -12,7 +12,7 @@ from tests.const import MOCK_CONFIG_ALL
 _LOGGER = logging.getLogger(__name__)
 
 
-async def test_async_setup(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker,):
+async def async_setup(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker,):
     response_dict = json.loads(load_fixture('01_response.json'))
 
     aioclient_mock.get('https://www.greenchoice.nl/umbraco/surface/quotation/GetQuotation',
